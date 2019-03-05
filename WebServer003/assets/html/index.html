@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script src="file:///android_asset/html/js/jquery-3.3.1.slim.min.js"  language="javascript" ></script>
+    <link rel="stylesheet" href="file:///android_asset/html/css/bootstrap.min.css" />
+    <script src="file:///android_asset/html/js/bootstrap.min.js"  language="javascript" ></script>
+
+</head>
+<body>
+<!--Button onclick="Android.Reload();">Android.Reload();</Button-->
+<br />
+<div class='container'>
+<ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Home</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Config Server</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Start Server</a>
+    </li>
+</ul>
+
+<div class="tab-content" id="pills-tabContent">
+    <!-- Home -->
+    <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+           <pre id="info"></pre>
+    </div>
+
+    <!-- Start Server  -->
+    <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+        <center>
+            <table>
+                <tr>
+                    <td align="center">
+                         <Button type="button"  class="btn btn-primary"  onclick="WebServer.Start();">Start WebServer</Button>
+                    </td>
+                    <td align="center">
+                        <Button type="button"  class="btn btn-primary"  onclick="WebServer.Stop();"> Stop WebServer </Button>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2"></td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center"> <h3></h3></td>
+                </tr>
+                <tr>
+                    <td align="center">
+                       <Button type="button"  class="btn btn-primary"  onclick="WebServer.StartBrowser();"> Start Browser </Button>
+                    </td>
+                    <td align="center">
+                       <Button type="button"  class="btn btn-primary"  onclick="LoadSite();">Go to Start Page</Button>
+                    </td>
+                </tr>
+            </table>
+        </center>
+    </div>
+
+
+    <!-- Config Server -->
+    <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+
+        <label for="Port" class="label label-default">Port:</label>
+        <input type="text" class="form-control form-control-sm" id="Port" placeholder="Set port server..."   >
+
+        <label for="Path" class="label label-default">Path:
+            <button onclick="$('#Path').val(WebServer.getStartPathFile())">AppSD</button>
+            <button onclick="$('#Path').val(WebServer.getGetDataDir())">data</button>
+            <button onclick="$('#Path').val(WebServer.getGetSDCard())">SDCard</button></label>
+        <input type="text" class="form-control form-control-sm" id="Path"/>
+        <label for="StartPage" class="label label-default">Start page:</label>
+        <input type="text" class="form-control form-control-sm" id="StartPage" placeholder="Set start page...">
+
+        <!--
+
+          <label for="UserName" class="label label-default">User name:</label>
+          <input type="text" class="form-control form-control-sm" id="UserName" placeholder="Set user name..."   >
+
+          <label for="UserPass" class="label label-default">User pass:</label>
+          <input type="password" class="form-control form-control-sm" id="UserPass" placeholder="Set user password..."   >
+
+        -->
+        <label for="CharSet" class="label label-default">Char Set:</label>
+        <select class="form-control form-control-sm" id="CharSet" >
+            <option>cp1251</option>
+            <option>utf-8</option>
+            <option>ISO-8859-1</option>
+            <option>KOI8-R</option>
+        </select>
+        <div align="center">
+            <button type="button" class="btn btn-xs btn-primary " id='LoadDefoultConfig'>Load defoult</button>
+            <button type="button" class="btn btn-xs btn-primary " id='SaveConfig'>Save config</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+    var RefeshIframe=function(){
+        $('#SampleQuery').attr('src',"http:"+Android.getIp()+":"+WebServer.getPort()+"/"+WebServer.getHost())
+        $('#UrlStr').text("http://"+Android.getIp()+":"+WebServer.getPort()+"/"+WebServer.getHost() );
+    }
+
+   var LoadSite=function(){
+       Android.url("http://"+Android.getIp()+":"+WebServer.getPort()+"/"+WebServer.getHost());
+   }
+   var GetInfoServer=function(){
+       $('#info').text('');
+       if (WebServer.getStatus()=='1'){
+         $('#info').append('\n Status : Server ON');
+       }else{
+         $('#info').append('\n Status : Server OFF');
+       }
+       $('#info').append('\n Host :'+Android.getIp());
+       $('#info').append('\n Port :'+WebServer.getPort());
+       $('#info').append('\n Path :'+WebServer.getStartPath());
+       $('#info').append('\n Start Page :'+WebServer.getHost());
+       $('#info').append('\n URL :'+"<a  data-toggle='modal' data-target='#exampleModal'>  http://"+Android.getIp()+":"+WebServer.getPort()+"/"+WebServer.getHost()+'</a>' );
+       $('#info').append('\n CharSet :'+WebServer.getChar());
+   }
+   GetInfoServer();
+   $( "#pills-home-tab" ).click(function() {  GetInfoServer(); });
+
+   var GetSetupServer=function(){
+       $('#Port').val(WebServer.getPort());
+       $('#Path').val( WebServer.getStartPath());
+       $('#StartPage').val( WebServer.getHost());
+       $('#CharSet').val( WebServer.getChar());
+   }
+   $( "#pills-profile-tab" ).click(function() {  GetSetupServer(); });
+   $( "#LoadDefoultConfig" ).click(function() {  GetSetupServer(); });
+   $( "#SaveConfig" ).click(function() {
+       WebServer.setPort( $('#Port').val());
+       WebServer.setStartPath( $('#Path').val()      );
+       WebServer.setHost( $('#StartPage').val() );
+       WebServer.setChar( $('#CharSet').val()   );
+       Android.showMessage('Config saved');
+   });
+
+
+
+    var SelectFileName="";
+
+
+   //  $("#Path").click(function() {
+   //     WebServer.ShowDialogDir( $('#Path').val() );
+   //  });
+
+
+
+
+</script>
+
+
+<!-- Button trigger modal -->
+<!--
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+    Launch demo modal
+</button>
+-->
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="FileList">
+                 <iframe src="FileList.html" id="fileList"></iframe>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
